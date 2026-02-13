@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给最可爱的你</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #fff5f5;
+            font-family: 'Microsoft YaHei', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #content {
+            text-align: center;
+            z-index: 10;
+            padding: 20px;
+        }
+        h1 { color: #ff4d4d; font-size: 2.5em; margin-bottom: 20px; }
+        #text { font-size: 1.2em; color: #555; line-height: 1.8; min-height: 100px; }
+        .btn {
+            margin-top: 30px;
+            padding: 12px 30px;
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: transform 0.3s;
+        }
+        .btn:hover { transform: scale(1.1); }
+    </style>
+</head>
+<body>
+
+    <div id="content">
+        <h1>情人节快乐！🌹</h1>
+        <div id="text"></div>
+        <button class="btn" onclick="fireworks()">点击领取惊喜</button>
+    </div>
+
+    <script>
+        // 在这里修改你想对她说的话
+        const message = "从遇见你的那一刻起，\n我就知道这个情人节会变得不一样。\n谢谢你出现在我的生命里，\n愿你每天都像今天一样开心。";
+        let i = 0;
+        function typing() {
+            if (i < message.length) {
+                document.getElementById("text").innerText += message.charAt(i);
+                i++;
+                setTimeout(typing, 150);
+            }
+        }
+
+        // 烟花特效
+        function fireworks() {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#ff4d4d', '#ff8080', '#ffffff']
+            });
+        }
+
+        window.onload = typing;
+    </script>
+</body>
+</html>
