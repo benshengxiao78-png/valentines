@@ -8,7 +8,7 @@
         body { margin: 0; overflow: hidden; background: linear-gradient(135deg, #fff5f5 0%, #fed7e2 100%); font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; }
         #content { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); padding: 35px; border-radius: 30px; box-shadow: 0 10px 30px rgba(255, 182, 193, 0.4); text-align: center; z-index: 10; max-width: 85%; border: 1px solid rgba(255, 255, 255, 0.8); position: relative; }
         h1 { color: #d53f8c; font-size: 1.8em; margin-bottom: 15px; transition: all 0.8s ease; }
-        #text { font-size: 1.1em; color: #4a5568; line-height: 1.8; min-height: 100px; white-space: pre-wrap; margin-bottom: 20px; text-align: left;}
+        #text { font-size: 1.1em; color: #4a5568; line-height: 1.8; min-height: 100px; white-space: pre-wrap; margin-bottom: 20px; text-align: left; }
         .btn { padding: 12px 40px; background: #ed64a6; color: white; border: none; border-radius: 50px; cursor: pointer; font-size: 1.1em; font-weight: bold; box-shadow: 0 4px 15px rgba(237, 100, 166, 0.3); transition: all 0.3s; }
         .btn:hover { transform: scale(1.05); background: #d53f8c; }
         .hidden { display: none !important; }
@@ -16,14 +16,15 @@
         #surprise-text { font-size: 1.5em; color: #d53f8c; font-weight: bold; margin-top: 20px; opacity: 0; transform: translateY(20px); transition: all 1s ease; }
         #surprise-text.show { opacity: 1; transform: translateY(0); }
 
-        #cherry-canvas { position: absolute; top: 0; left: 0; pointer-events: none; }
+        #main-canvas { position: absolute; top: 0; left: 0; pointer-events: none; }
         .music-icon { position: fixed; top: 20px; right: 20px; font-size: 24px; display: none; z-index: 100; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .rotating { animation: rotate 3s linear infinite; }
     </style>
 </head>
 <body>
-    <canvas id="cherry-canvas"></canvas>
+    <canvas id="main-canvas"></canvas>
+    
     <div id="music-ui" class="music-icon">🎵</div>
 
     <audio id="bgm" loop preload="auto">
@@ -44,7 +45,6 @@
     </div>
 
     <script>
-        // --- 1. 打字机告白 ---
         const message = "这是我们在一起之后的第二个情人节，去年情人节我们在蒙楼107寒训，你送给我一个胶片机，我很开心！\n今年虽然没法见面，但是我想到了这种新奇的方式给你一个惊喜！";
         let i = 0;
         function typing() {
@@ -55,79 +55,103 @@
             }
         }
 
-        // --- 2. 纯代码手写烟花（百分百不会加载失败） ---
-        function fireConfetti() {
-            const colors = ['#ffb6c1', '#ff69b4', '#ffffff', '#ffd700', '#ffc0cb'];
-            
-            function createParticle(startX, startY, angleDir) {
-                const p = document.createElement('div');
-                p.style.position = 'fixed';
-                p.style.left = '0px'; p.style.top = '0px';
-                p.style.width = Math.random()*8+6 + 'px'; 
-                p.style.height = Math.random()*8+6 + 'px';
-                p.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
-                p.style.borderRadius = Math.random()>0.5 ? '50%' : '2px';
-                p.style.zIndex = '9999'; p.style.pointerEvents = 'none';
-                document.body.appendChild(p);
-
-                const angle = (Math.random() * 40 + 50) * (Math.PI/180); 
-                const velocity = Math.random() * 15 + 15;
-                let dx = Math.cos(angle) * velocity * angleDir;
-                let dy = -Math.sin(angle) * velocity;
-                let x = startX; let y = startY;
-                let rot = Math.random() * 360; 
-                let drot = Math.random() * 10 - 5;
-                let life = 0; let maxLife = Math.random() * 40 + 60;
-
-                function step() {
-                    life++; dy += 0.5; x += dx; y += dy; rot += drot;
-                    p.style.transform = `translate(${x}px, ${y}px) rotate(${rot}deg)`;
-                    if(life > maxLife * 0.7) p.style.opacity = 1 - (life - maxLife*0.7)/(maxLife*0.3);
-                    if(life < maxLife) requestAnimationFrame(step); else p.remove();
-                }
-                requestAnimationFrame(step);
-            }
-
-            let shoots = 0;
-            let interval = setInterval(() => {
-                for(let j=0; j<25; j++) {
-                    createParticle(window.innerWidth * 0.1, window.innerHeight, 1); // 左侧发射
-                    createParticle(window.innerWidth * 0.9, window.innerHeight, -1); // 右侧发射
-                }
-                shoots++;
-                if(shoots > 7) clearInterval(interval);
-            }, 300);
-        }
-
-        // --- 3. 点击按钮的核心逻辑 ---
-        function celebrate() {
-            // A. 播放本地音乐
-            const audio = document.getElementById('bgm');
-            audio.play().then(() => {
-                document.getElementById('music-ui').style.display = 'block';
-                document.getElementById('music-ui').classList.add('rotating');
-            }).catch(e => console.log("等待用户交互"));
-
-            // B. 隐藏按钮，优雅地显示告白文字
-            document.getElementById('mainBtn').classList.add('hidden');
-            document.getElementById('surprise-text').classList.add('show');
-
-            // C. 放烟花
-            fireConfetti();
-        }
-
-        // --- 4. 樱花背景 ---
-        const canvas = document.getElementById('cherry-canvas');
+        // 获取底层画布
+        const canvas = document.getElementById('main-canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth; 
+        canvas.height = window.innerHeight;
+
+        // 樱花系统
         const petals = [];
         class Petal {
             constructor() { this.x = Math.random()*canvas.width; this.y = Math.random()*canvas.height; this.size = Math.random()*5+2; this.speed = Math.random()*1.5+0.5; this.angle = Math.random()*360; }
             draw() { ctx.beginPath(); ctx.fillStyle = "#ffb6c1"; ctx.ellipse(this.x, this.y, this.size, this.size/1.5, this.angle, 0, Math.PI*2); ctx.fill(); }
             update() { this.y += this.speed; if (this.y > canvas.height) this.y = -10; }
         }
-        for (let i = 0; i < 40; i++) petals.push(new Petal());
-        function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); petals.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
+        for (let j = 0; j < 40; j++) petals.push(new Petal());
+
+        // 烟花系统
+        let isCelebrating = false;
+        let fireworks = [];
+        const fColors = ['#ff4d4d', '#ffb6c1', '#ffffff', '#ffd700', '#ff69b4'];
+
+        class Firework {
+            constructor(x, y, dx, dy, color) {
+                this.x = x; this.y = y; this.dx = dx; this.dy = dy; this.color = color;
+                this.life = 1.0; this.decay = Math.random() * 0.02 + 0.015;
+                this.size = Math.random() * 4 + 2;
+            }
+            update() {
+                this.dy += 0.3; // 重力下坠
+                this.x += this.dx; this.y += this.dy;
+                this.life -= this.decay;
+            }
+            draw() {
+                ctx.globalAlpha = Math.max(0, this.life);
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        function celebrate() {
+            // 音乐
+            const audio = document.getElementById('bgm');
+            audio.play().then(() => {
+                document.getElementById('music-ui').style.display = 'block';
+                document.getElementById('music-ui').classList.add('rotating');
+            }).catch(e => console.log("等待用户交互"));
+
+            // 界面切换
+            document.getElementById('mainBtn').classList.add('hidden');
+            document.getElementById('surprise-text').classList.add('show');
+
+            // 触发烟花喷射
+            isCelebrating = true;
+            let shoots = 0;
+            let interval = setInterval(() => {
+                // 左侧喷射
+                for(let k=0; k<30; k++) {
+                    fireworks.push(new Firework(
+                        window.innerWidth * 0.1, window.innerHeight,
+                        Math.random() * 10 + 2, -(Math.random() * 15 + 10),
+                        fColors[Math.floor(Math.random() * fColors.length)]
+                    ));
+                }
+                // 右侧喷射
+                for(let k=0; k<30; k++) {
+                    fireworks.push(new Firework(
+                        window.innerWidth * 0.9, window.innerHeight,
+                        Math.random() * 10 - 12, -(Math.random() * 15 + 10),
+                        fColors[Math.floor(Math.random() * fColors.length)]
+                    ));
+                }
+                shoots++;
+                if(shoots > 8) clearInterval(interval); // 喷射8波后停止
+            }, 400);
+        }
+
+        // 统一动画渲染引擎
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 画樱花
+            petals.forEach(p => { p.update(); p.draw(); });
+            
+            // 画烟花
+            if (isCelebrating) {
+                for (let i = fireworks.length - 1; i >= 0; i--) {
+                    let f = fireworks[i];
+                    f.update();
+                    f.draw();
+                    if (f.life <= 0) fireworks.splice(i, 1);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
         window.onload = () => { typing(); animate(); };
     </script>
 </body>
