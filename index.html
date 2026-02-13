@@ -3,71 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>给最可爱的你</title>
+    <title>To My Love</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
+        /* 整体样式：渐变粉色背景 */
         body {
             margin: 0;
             overflow: hidden;
-            background: #fff5f5;
-            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7e2 100%);
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
         }
+
+        /* 告白卡片容器 */
         #content {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px); /* 磨砂玻璃效果 */
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.4);
             text-align: center;
             z-index: 10;
-            padding: 20px;
+            max-width: 80%;
+            border: 1px solid rgba(255, 255, 255, 0.8);
         }
-        h1 { color: #ff4d4d; font-size: 2.5em; margin-bottom: 20px; }
-        #text { font-size: 1.2em; color: #555; line-height: 1.8; min-height: 100px; }
+
+        h1 { color: #d53f8c; font-size: 2em; margin-bottom: 20px; text-shadow: 1px 1px 2px rgba(0,0,0,0.05); }
+
+        #text { 
+            font-size: 1.1em; 
+            color: #4a5568; 
+            line-height: 2; 
+            min-height: 120px; 
+            white-space: pre-wrap; /* 保持换行 */
+        }
+
         .btn {
-            margin-top: 30px;
-            padding: 12px 30px;
-            background: #ff4d4d;
+            margin-top: 25px;
+            padding: 12px 35px;
+            background: #ed64a6;
             color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 50px;
             cursor: pointer;
-            font-size: 1.1em;
-            transition: transform 0.3s;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(237, 100, 166, 0.3);
         }
-        .btn:hover { transform: scale(1.1); }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            background: #d53f8c;
+            box-shadow: 0 6px 20px rgba(237, 100, 166, 0.5);
+        }
+
+        /* 樱花飘落画布 */
+        #cherry-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
+    <canvas id="cherry-canvas"></canvas>
+
     <div id="content">
-        <h1>情人节快乐！🌹</h1>
+        <h1 id="title">致我最亲爱的你 ❤️</h1>
         <div id="text"></div>
-        <button class="btn" onclick="fireworks()">点击领取惊喜</button>
+        <button class="btn" onclick="celebrate()">点击领取专属惊喜</button>
     </div>
 
     <script>
-        // 在这里修改你想对她说的话
-        const message = "从遇见你的那一刻起，\n我就知道这个情人节会变得不一样。\n谢谢你出现在我的生命里，\n愿你每天都像今天一样开心。";
+        // --- 配置区：修改你想说的话 ---
+        const message = "在这个特别的日子里，\n跨越屏幕，想把最暖的拥抱给你。\n\n哪怕我们现在不在一起，\n我的心也一直和你同频跳动。\n\n情人节快乐，我的女孩！";
+
+        // --- 自动打字逻辑 ---
         let i = 0;
         function typing() {
             if (i < message.length) {
                 document.getElementById("text").innerText += message.charAt(i);
                 i++;
-                setTimeout(typing, 150);
+                setTimeout(typing, 120);
             }
         }
 
-        // 烟花特效
-        function fireworks() {
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#ff4d4d', '#ff8080', '#ffffff']
-            });
+        // --- 互动点击效果 ---
+        function celebrate() {
+            // 1. 漫天烟花
+            const duration = 3 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                const particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+
+            // 2. 更改标题
+            document.getElementById('title').innerText = "你就是我最好的礼物！🎁";
+            
+            // 3. 弹窗提示
+            setTimeout(() => {
+                alert("恭喜你！获得“专属男朋友”永久陪伴券一张，请凭此网页找我兑换。");
+            }, 1000);
         }
 
-        window.onload = typing;
+        // --- 樱花飘落逻辑 ---
+        const canvas = document.getElementById('cherry-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const petals = [];
+        class Petal {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height - canvas.height;
+                this.size = Math.random() * 7 + 3;
+                this.speed = Math.random() * 2 + 1;
+                this.angle = Math.random() * 360;
+                this.spin = Math.random() * 0.2 - 0.1;
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle * Math.PI / 180);
+                ctx.fillStyle = '#ffb6c1';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, this.size, this.size/2, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+            update() {
+                this.y += this.speed;
+                this.x += Math.sin(this.y / 50);
+                this.angle += this.spin;
+                if (this.y > canvas.height) this.y = -20;
+            }
+        }
+
+        for (let i = 0; i < 50; i++) petals.push(new Petal());
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            petals.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+
+        window.onload = () => {
+            typing();
+            animate();
+        };
     </script>
 </body>
 </html>
