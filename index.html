@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To My Love</title>
+    <title>To 徐豹豹 🐆</title>
     <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/canvas-confetti/1.4.0/confetti.browser.min.js"></script>
     <style>
         body {
@@ -16,32 +16,22 @@
             align-items: center;
             height: 100vh;
         }
-
         #content {
             background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 30px;
+            padding: 30px;
+            border-radius: 25px;
             box-shadow: 0 10px 30px rgba(255, 182, 193, 0.4);
             text-align: center;
             z-index: 10;
-            max-width: 80%;
+            max-width: 85%;
             border: 1px solid rgba(255, 255, 255, 0.8);
         }
-
-        h1 { color: #d53f8c; font-size: 2em; margin-bottom: 20px; text-shadow: 1px 1px 2px rgba(0,0,0,0.05); }
-
-        #text { 
-            font-size: 1.1em; 
-            color: #4a5568; 
-            line-height: 2; 
-            min-height: 120px; 
-            white-space: pre-wrap;
-        }
-
+        h1 { color: #d53f8c; font-size: 1.8em; margin-bottom: 15px; transition: all 0.5s; }
+        #text { font-size: 1.1em; color: #4a5568; line-height: 1.8; min-height: 100px; white-space: pre-wrap; }
         .btn {
-            margin-top: 25px;
-            padding: 12px 35px;
+            margin-top: 20px;
+            padding: 10px 30px;
             background: #ed64a6;
             color: white;
             border: none;
@@ -49,115 +39,110 @@
             cursor: pointer;
             font-size: 1em;
             font-weight: bold;
-            transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(237, 100, 166, 0.3);
         }
-
-        .btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            background: #d53f8c;
+        #cherry-canvas { position: absolute; top: 0; left: 0; pointer-events: none; }
+        
+        /* 音乐图标旋转动画 */
+        .music-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            z-index: 100;
+            display: none; /* 初始隐藏，播放后显示 */
         }
-
-        #cherry-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .rotating { animation: rotate 3s linear infinite; }
     </style>
 </head>
 <body>
-
     <canvas id="cherry-canvas"></canvas>
+    
+    <div id="music-ui" class="music-icon">🎵</div>
+
+    <audio id="bgm" loop>
+        <source src="https://music.163.com/song/media/outer/url?id=523043440.mp3" type="audio/mpeg">
+    </audio>
 
     <div id="content">
         <h1 id="title">To 徐豹豹 🐆</h1>
         <div id="text"></div>
-        <button class="btn" onclick="celebrate()">点我！</button>
+        <button class="btn" id="startBtn" onclick="celebrate()">点我！</button>
     </div>
 
     <script>
         const message = "这是我们在一起之后的第二个情人节，去年情人节我们在蒙楼107寒训，你送给我一个胶片机，我很开心！\n今年虽然没法见面，但是我想到了这种新奇的方式给你一个惊喜！";
-
         let i = 0;
         function typing() {
             if (i < message.length) {
                 document.getElementById("text").innerText += message.charAt(i);
                 i++;
-                setTimeout(typing, 120);
+                setTimeout(typing, 100);
             }
         }
 
         function celebrate() {
-            const duration = 3 * 1000;
-            const animationEnd = Date.now() + duration;
-            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            // 1. 播放音乐
+            const audio = document.getElementById('bgm');
+            audio.play().then(() => {
+                document.getElementById('music-ui').style.display = 'block';
+                document.getElementById('music-ui').classList.add('rotating');
+            }).catch(e => console.log("播放失败:", e));
 
-            function randomInRange(min, max) {
-                return Math.random() * (max - min) + min;
+            // 2. 触发烟花
+            if (typeof confetti === 'function') {
+                const end = Date.now() + 3000;
+                (function frame() {
+                    confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ffb6c1', '#ff69b4'] });
+                    confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ffb6c1', '#ff69b4'] });
+                    if (Date.now() < end) requestAnimationFrame(frame);
+                }());
             }
 
-            const interval = setInterval(function() {
-                const timeLeft = animationEnd - Date.now();
-                if (timeLeft <= 0) return clearInterval(interval);
-                const particleCount = 50 * (timeLeft / duration);
-                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
-                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
-            }, 250);
-
-            document.getElementById('title').innerText = "I Love You FOUR!";
+            // 3. 更改文字内容
+            document.getElementById('title').innerText = "I Love You FOUR! ❤️";
+            document.getElementById('title').style.transform = "scale(1.2)";
             
+            // 4. 弹窗提示
             setTimeout(() => {
-                // 这里修复了引号问题
                 alert("恭喜你！获得“黄大狗🐕”永久陪伴券一张，请凭此网页找我兑换。");
-            }, 1000);
+            }, 800);
         }
 
+        // 樱花背景逻辑
         const canvas = document.getElementById('cherry-canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-
         const petals = [];
         class Petal {
             constructor() {
                 this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height - canvas.height;
-                this.size = Math.random() * 7 + 3;
-                this.speed = Math.random() * 2 + 1;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 5 + 2;
+                this.speed = Math.random() * 1.5 + 0.5;
                 this.angle = Math.random() * 360;
-                this.spin = Math.random() * 0.2 - 0.1;
             }
             draw() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.angle * Math.PI / 180);
-                ctx.fillStyle = '#ffb6c1';
                 ctx.beginPath();
-                ctx.ellipse(0, 0, this.size, this.size/2, 0, 0, Math.PI * 2);
+                ctx.fillStyle = "#ffb6c1";
+                ctx.ellipse(this.x, this.y, this.size, this.size/1.5, this.angle, 0, Math.PI * 2);
                 ctx.fill();
-                ctx.restore();
             }
             update() {
                 this.y += this.speed;
-                this.x += Math.sin(this.y / 50);
-                this.angle += this.spin;
-                if (this.y > canvas.height) this.y = -20;
+                if (this.y > canvas.height) this.y = -10;
             }
         }
-
-        for (let i = 0; i < 50; i++) petals.push(new Petal());
-
+        for (let i = 0; i < 40; i++) petals.push(new Petal());
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             petals.forEach(p => { p.update(); p.draw(); });
             requestAnimationFrame(animate);
         }
 
-        window.onload = () => {
-            typing();
-            animate();
-        };
+        window.onload = () => { typing(); animate(); };
     </script>
 </body>
 </html>
