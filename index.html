@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To My Love</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/canvas-confetti/1.4.0/confetti.browser.min.js"></script>
     <style>
-        /* 整体样式：渐变粉色背景 */
         body {
             margin: 0;
             overflow: hidden;
@@ -18,10 +17,9 @@
             height: 100vh;
         }
 
-        /* 告白卡片容器 */
         #content {
             background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(10px); /* 磨砂玻璃效果 */
+            backdrop-filter: blur(10px);
             padding: 40px;
             border-radius: 30px;
             box-shadow: 0 10px 30px rgba(255, 182, 193, 0.4);
@@ -38,7 +36,7 @@
             color: #4a5568; 
             line-height: 2; 
             min-height: 120px; 
-            white-space: pre-wrap; /* 保持换行 */
+            white-space: pre-wrap;
         }
 
         .btn {
@@ -58,10 +56,8 @@
         .btn:hover {
             transform: translateY(-3px) scale(1.05);
             background: #d53f8c;
-            box-shadow: 0 6px 20px rgba(237, 100, 166, 0.5);
         }
 
-        /* 樱花飘落画布 */
         #cherry-canvas {
             position: absolute;
             top: 0;
@@ -81,10 +77,8 @@
     </div>
 
     <script>
-        // --- 配置区：修改你想说的话 ---
-        const message = "这是我们在一起之后的第二个情人节，去年情人节我们在蒙楼107寒训，你送给我一个胶片机，我很开心！\n 今年虽然没法见面，但是我想到了这种新奇的方式给你一个惊喜！";
+        const message = "这是我们在一起之后的第二个情人节，去年情人节我们在蒙楼107寒训，你送给我一个胶片机，我很开心！\n今年虽然没法见面，但是我想到了这种新奇的方式给你一个惊喜！";
 
-        // --- 自动打字逻辑 ---
         let i = 0;
         function typing() {
             if (i < message.length) {
@@ -94,9 +88,7 @@
             }
         }
 
-        // --- 互动点击效果 ---
         function celebrate() {
-            // 1. 漫天烟花
             const duration = 3 * 1000;
             const animationEnd = Date.now() + duration;
             const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
@@ -113,16 +105,14 @@
                 confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
             }, 250);
 
-            // 2. 更改标题
             document.getElementById('title').innerText = "I Love You FOUR!";
             
-            // 3. 弹窗提示
             setTimeout(() => {
-                alert("恭喜你！获得"黄大狗🐕"永久陪伴券一张，请凭此网页找我兑换。");
+                // 这里修复了引号问题
+                alert("恭喜你！获得“黄大狗🐕”永久陪伴券一张，请凭此网页找我兑换。");
             }, 1000);
         }
 
-        // --- 樱花飘落逻辑 ---
         const canvas = document.getElementById('cherry-canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
